@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+		http://www.springframework.org/schema/jee 
+		http://www.springframework.org/schema/jee/spring-jee-2.0.xsd
+		http://www.springframework.org/schema/lang 
+		http://www.springframework.org/schema/lang/spring-lang-2.0.xsd
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-2.0.xsd 
+		http://www.springframework.org/schema/util 
+		http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<!-- 员工档案配置 -->
+	<bean name="employeeAction"
+		class="org.gdcp.unit29.action.EmployeeAction">
+		<property name="employeeService" ref="employeeService" />
+	</bean>
+	<bean name="employeeService"
+		class="org.gdcp.unit29.service.EmployeeService">
+		<property name="employeeDao" ref="employeeDao"></property>
+	</bean>
+	<bean name="employeeDao" class="org.gdcp.unit29.dao.EmployeeDao">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- 商品档案配置 -->
+	<bean name="merchandiseAction"
+		class="org.gdcp.unit29.action.MerchandiseAction">
+		<property name="merchandiseService" ref="merchandiseService" />
+	</bean>
+	<bean name="merchandiseService"
+		class="org.gdcp.unit29.service.MerchandiseService">
+		<property name="merchandiseDao" ref="merchandiseDao"></property>
+	</bean>
+	<bean name="merchandiseDao"
+		class="org.gdcp.unit29.dao.MerchandiseDao">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- 客户档案配置 -->
+	<bean name="clientAction"
+		class="org.gdcp.unit29.action.ClientAction">
+		<property name="clientService" ref="clientService" />
+	</bean>
+	<bean name="clientService"
+		class="org.gdcp.unit29.service.ClientService">
+		<property name="clientDao" ref="clientDao"></property>
+	</bean>
+	<bean name="clientDao" class="org.gdcp.unit29.dao.ClientDao">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- 进货单配置 -->
+	<bean name="stockinAction"
+		class="org.gdcp.unit29.action.StockinAction">
+		<property name="stockinService" ref="stockinService" />
+		<property name="merchandiseService" ref="merchandiseService" />
+		<property name="clientService" ref="clientService" />
+		<property name="employeeService" ref="employeeService" />
+	</bean>
+	<bean name="stockinService"
+		class="org.gdcp.unit29.service.StockinService">
+		<property name="stockinDao" ref="stockinDao"></property>
+	</bean>
+	<bean name="stockinDao" class="org.gdcp.unit29.dao.StockinDao">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- 订货单配置 -->
+	<bean name="stockorderAction"
+		class="org.gdcp.unit29.action.StockorderAction">
+		<property name="stockorderService" ref="stockorderService" />
+		<property name="merchandiseService" ref="merchandiseService" />
+		<property name="clientService" ref="clientService" />
+		<property name="employeeService" ref="employeeService" />
+	</bean>
+	<bean name="stockorderService"
+		class="org.gdcp.unit29.service.StockorderService">
+		<property name="stockorderDao" ref="stockorderDao"></property>
+	</bean>
+	<bean name="stockorderDao"
+		class="org.gdcp.unit29.dao.StockorderDao">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean name="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="configLocation">
+			<value>classpath:hibernate.cfg.xml</value>
+		</property>
+	</bean>
+
+	<bean name="transactionManager"  
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" read-only="false" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:pointcut id="allServiceMethod"
+			expression="execution(* org.gdcp.unit29.dao.*.*(..))" />
+		<aop:advisor pointcut-ref="allServiceMethod"
+			advice-ref="txAdvice" />
+	</aop:config>
+
+</beans>
